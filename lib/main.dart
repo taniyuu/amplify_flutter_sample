@@ -1,6 +1,7 @@
 import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_core/amplify_core.dart';
+import 'package:amplify_flutter_sample/amplifyconfiguration.dart';
 import 'package:flutter/material.dart';
 
 void main() {
