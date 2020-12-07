@@ -1,8 +1,27 @@
-import 'package:amplify_flutter_sample/ui/pages/home_page.dart';
+import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_core/amplify_core.dart';
+import 'package:amplify_flutter_sample/amplifyconfiguration.dart';
+import 'package:amplify_flutter_sample/ui/controllers/process_initializer.dart';
+import 'package:amplify_flutter_sample/ui/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
   runApp(MyApp());
+  await _configureAmplify();
+}
+
+Future<void> _configureAmplify() async {
+  // Instantiate Amplify
+  Amplify amplifyInstance = Amplify();
+  // Add Pinpoint and Cognito Plugins
+  AmplifyAnalyticsPinpoint analyticsPlugin = AmplifyAnalyticsPinpoint();
+  AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
+  amplifyInstance.addPlugin(authPlugins: [authPlugin]);
+  amplifyInstance.addPlugin(analyticsPlugins: [analyticsPlugin]);
+
+  // Once Plugins are added, configure Amplify
+  await amplifyInstance.configure(amplifyconfig);
 }
 
 class MyApp extends StatelessWidget {
@@ -27,7 +46,21 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Amplify Flutter Sample'),
+      home: FutureBuilder(
+          future: Initializer.getInitialWidget(),
+          builder: (ctx, AsyncSnapshot<Widget> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              print(snapshot.error);
+              return LoginPage();
+            } else {
+              return snapshot.data;
+            }
+          }),
     );
   }
 }

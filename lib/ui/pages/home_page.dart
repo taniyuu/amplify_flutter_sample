@@ -1,13 +1,13 @@
 import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_core/amplify_core.dart';
-import 'package:amplify_flutter_sample/amplifyconfiguration.dart';
 import 'package:amplify_flutter_sample/ui/pages/login_page.dart';
-import 'package:amplify_flutter_sample/ui/pages/sign_up_page.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({
+    Key key,
+    this.title = 'Amplify Flutter Sample',
+  }) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -27,8 +27,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   bool _amplifyConfigured = false;
-  // Instantiate Amplify
-  Amplify amplifyInstance = Amplify();
 
   @override
   void initState() {
@@ -39,14 +37,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void _configureAmplify() async {
     if (!mounted) return;
 
-    // Add Pinpoint and Cognito Plugins
-    AmplifyAnalyticsPinpoint analyticsPlugin = AmplifyAnalyticsPinpoint();
-    AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
-    amplifyInstance.addPlugin(authPlugins: [authPlugin]);
-    amplifyInstance.addPlugin(analyticsPlugins: [analyticsPlugin]);
+    // // Add Pinpoint and Cognito Plugins
+    // AmplifyAnalyticsPinpoint analyticsPlugin = AmplifyAnalyticsPinpoint();
+    // AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
+    // amplifyInstance.addPlugin(authPlugins: [authPlugin]);
+    // amplifyInstance.addPlugin(analyticsPlugins: [analyticsPlugin]);
 
-    // Once Plugins are added, configure Amplify
-    await amplifyInstance.configure(amplifyconfig);
+    // // Once Plugins are added, configure Amplify
+    // await amplifyInstance.configure(amplifyconfig);
     try {
       setState(() {
         _amplifyConfigured = true;
@@ -75,6 +73,18 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+
+  Future<void> _signOut() async {
+    await Amplify.Auth.signOut();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) {
+          return LoginPage();
+        },
+      ),
+      (_) => false,
+    );
   }
 
   @override
@@ -127,32 +137,8 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('record event'),
             ),
             RaisedButton(
-              onPressed: () => {
-                _amplifyConfigured
-                    ? Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return LoginPage();
-                          },
-                        ),
-                      )
-                    : null
-              },
-              child: const Text('Go to Sign in'),
-            ),
-            RaisedButton(
-              onPressed: () => {
-                _amplifyConfigured
-                    ? Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return SignUpPage();
-                          },
-                        ),
-                      )
-                    : null
-              },
-              child: const Text('Go to Sign up'),
+              onPressed: _signOut,
+              child: const Text('Sign Out'),
             ),
           ],
         ),

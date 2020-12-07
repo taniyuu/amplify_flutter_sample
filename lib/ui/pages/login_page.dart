@@ -1,5 +1,7 @@
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_core/amplify_core.dart';
+import 'package:amplify_flutter_sample/ui/pages/home_page.dart';
+import 'package:amplify_flutter_sample/ui/pages/sign_up_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -27,8 +29,15 @@ class _LoginPageState extends State<LoginPage> {
         final authState = await Amplify.Auth.fetchAuthSession(
                 options: CognitoSessionOptions(getAWSCredentials: true))
             as CognitoAuthSession;
-        print(authState.userPoolTokens);
-        Navigator.pop(context, true);
+        print(authState.userPoolTokens.idToken);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) {
+              return MyHomePage();
+            },
+          ),
+          (_) => false,
+        );
       }
     } on AuthError catch (e) {
       showDialog(
@@ -87,6 +96,18 @@ class _LoginPageState extends State<LoginPage> {
                   RaisedButton(
                     onPressed: _signIn,
                     child: const Text('Sign In'),
+                  ),
+                  RaisedButton(
+                    onPressed: () => {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return SignUpPage();
+                          },
+                        ),
+                      )
+                    },
+                    child: const Text('Go to Sign up'),
                   ),
                   //ErrorView(_signUpError, _signUpExceptions)
                 ],
