@@ -29,11 +29,12 @@ class _LoginPageState extends State<LoginPage> {
         final authState = await Amplify.Auth.fetchAuthSession(
                 options: CognitoSessionOptions(getAWSCredentials: true))
             as CognitoAuthSession;
-        print(authState.userPoolTokens.idToken);
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) {
-              return MyHomePage();
+              return MyHomePage(
+                idToken: authState.userPoolTokens.idToken,
+              );
             },
           ),
           (_) => false,

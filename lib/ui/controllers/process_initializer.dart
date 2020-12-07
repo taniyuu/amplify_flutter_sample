@@ -10,7 +10,7 @@ class Initializer {
             options: CognitoSessionOptions(getAWSCredentials: true))
         as CognitoAuthSession;
     if (_authState.isSignedIn) {
-      return MyHomePage();
+      return MyHomePage(idToken: _authState.userPoolTokens.idToken);
     } else {
       return LoginPage();
     }

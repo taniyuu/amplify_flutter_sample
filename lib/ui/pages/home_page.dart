@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
 import 'package:amplify_core/amplify_core.dart';
 import 'package:amplify_flutter_sample/ui/pages/login_page.dart';
@@ -7,6 +9,7 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({
     Key key,
     this.title = 'Amplify Flutter Sample',
+    @required this.idToken,
   }) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -19,6 +22,7 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final String idToken;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -27,32 +31,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   bool _amplifyConfigured = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _configureAmplify();
-  }
-
-  void _configureAmplify() async {
-    if (!mounted) return;
-
-    // // Add Pinpoint and Cognito Plugins
-    // AmplifyAnalyticsPinpoint analyticsPlugin = AmplifyAnalyticsPinpoint();
-    // AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
-    // amplifyInstance.addPlugin(authPlugins: [authPlugin]);
-    // amplifyInstance.addPlugin(analyticsPlugins: [analyticsPlugin]);
-
-    // // Once Plugins are added, configure Amplify
-    // await amplifyInstance.configure(amplifyconfig);
-    try {
-      setState(() {
-        _amplifyConfigured = true;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
 
   // Send an event to Pinpoint
   void _recordEvent() async {
@@ -85,6 +63,45 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       (_) => false,
     );
+  }
+
+  String _username() {
+    final _attrMap = _parseJwt(widget.idToken);
+    return _attrMap['cognito:username'];
+  }
+
+  Map<String, dynamic> _parseJwt(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('invalid token');
+    }
+
+    final payload = _decodeBase64(parts[1]);
+    final payloadMap = json.decode(payload);
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('invalid payload');
+    }
+
+    return payloadMap;
+  }
+
+  String _decodeBase64(String str) {
+    String output = str.replaceAll('-', '+').replaceAll('_', '/');
+
+    switch (output.length % 4) {
+      case 0:
+        break;
+      case 2:
+        output += '==';
+        break;
+      case 3:
+        output += '=';
+        break;
+      default:
+        throw Exception('Illegal base64url string!"');
+    }
+
+    return utf8.decode(base64Url.decode(output));
   }
 
   @override
@@ -122,18 +139,15 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              'Hello ${_username()}',
             ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
             const Padding(padding: EdgeInsets.all(5.0)),
-            Text(
-              _amplifyConfigured ? "configured" : "not configured",
-            ),
             RaisedButton(
-              onPressed: _amplifyConfigured ? _recordEvent : null,
+              onPressed: _recordEvent,
               child: const Text('record event'),
             ),
             RaisedButton(
