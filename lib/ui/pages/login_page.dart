@@ -23,8 +23,13 @@ class _LoginPageState extends State<LoginPage> {
       SignInResult res = await Amplify.Auth.signIn(
           username: usernameController.text.trim(),
           password: passwordController.text.trim());
-      print(res.isSignedIn);
-      Navigator.pop(context, true);
+      if (res.isSignedIn) {
+        final authState = await Amplify.Auth.fetchAuthSession(
+                options: CognitoSessionOptions(getAWSCredentials: true))
+            as CognitoAuthSession;
+        print(authState.userPoolTokens);
+        Navigator.pop(context, true);
+      }
     } on AuthError catch (e) {
       showDialog(
         context: context,

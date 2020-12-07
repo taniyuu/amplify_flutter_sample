@@ -1,6 +1,5 @@
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_core/amplify_core.dart';
-import 'package:amplify_flutter_sample/ui/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmCodePage extends StatefulWidget {
